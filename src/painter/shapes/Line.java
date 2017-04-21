@@ -1,14 +1,13 @@
 package painter.shapes;
 
+import painter.tools.ObjectsType;
+
 public class Line extends GraphicObject {
 
     public Line() {
-        setAsLine();
+        super.setType(ObjectsType.LINE);
+        super.setType(ObjectsType.LINE);
+
     }
 
-    
-    public void setAsLine() {
-        this.isLine = Boolean.TRUE;
-    }
-    
 }

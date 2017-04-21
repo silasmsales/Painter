@@ -11,7 +11,8 @@ public class Controler {
     public static final int DRAW = 0;
     public static final int FILL = 1;
 
-    private MenuOptions selectedItem = MenuOptions.NONE;
+    ObjectsType selectedItem = ObjectsType.NONE;
+
     private int selectedObjectIndex = Selection.NONE;
     private final List<GraphicObject> listOfObjects;
     private float defaultTranslationJump;
@@ -84,11 +85,11 @@ public class Controler {
         listOfObjects.clear();
     }
 
-    public void setOperation(MenuOptions opcoesMenu) {
+    public void setOperation(ObjectsType opcoesMenu) {
         this.selectedItem = opcoesMenu;
     }
 
-    public MenuOptions getOperation() {
+    public ObjectsType getOperation() {
         return selectedItem;
     }
 

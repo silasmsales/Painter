@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import painter.tools.GrahamScan;
+import painter.tools.ObjectsType;
 
 /**
  *
@@ -28,7 +29,7 @@ public class GraphicObject {
     {ZERO, ZERO, ZERO},
     {ZERO, ZERO, ZERO}};
 
-    protected boolean isLine = false;
+    private ObjectsType type = ObjectsType.POLYGON;
 
     public GraphicObject(float[] xAxis, float[] yAxis) {
         this.matrixPoints = new float[xAxis.length][COLUMN_NUMBER];
@@ -234,7 +235,7 @@ public class GraphicObject {
         return area / TWO;
     }
 
-    public int[] getXAxisNotConvex() {
+    public int[] getXAxisNonConvex() {
         int[] xAxis = new int[matrixPoints.length];
         for (int i = 0; i < matrixPoints.length; i++) {
             xAxis[i] = (int) matrixPoints[i][0];
@@ -242,7 +243,7 @@ public class GraphicObject {
         return xAxis;
     }
 
-    public int[] getYAxisNotConvex() {
+    public int[] getYAxisNonConvex() {
         int[] yAxis = new int[matrixPoints.length];
         for (int i = 0; i < matrixPoints.length; i++) {
             yAxis[i] = (int) matrixPoints[i][1];
@@ -407,8 +408,34 @@ public class GraphicObject {
 
     }
 
-    public boolean isLine() {
-        return this.isLine;
+    public List<Point> getNonConvexPoint() {
+        List <Point> points  = new ArrayList<>();
+        for (int i = 0; i < matrixPoints.length; i++) {
+            Point point = new Point(matrixPoints[i][X_AXIS], matrixPoints[i][Y_AXIS]);
+            if (!isAConvexPoint(point)) {
+                points.add(point);
+            }
+        }
+        return points;
+    }
+
+    public boolean isAConvexPoint(Point point) {
+        int[] xAxis = this.getXAxisConvex();
+        int[] yAxis = this.getYAxisConvex();
+        for (int i = 0; i < this.getLength(); i++) {
+            Point point1 = new Point(xAxis[i], yAxis[i]);
+            if (point1.getX() == point.getX() && point1.getY() == point.getY()) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+    public ObjectsType getType() {
+        return this.type;
+    }
+    public void setType(ObjectsType type){
+        this.type = type;
     }
 
 }

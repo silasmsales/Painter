@@ -16,7 +16,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
-import painter.tools.MenuOptions;
+import painter.tools.ObjectsType;
 import painter.tools.Selection;
 import painter.shapes.Circle;
 import painter.shapes.Ellipse;
@@ -187,33 +187,33 @@ public final class GUIControls extends JFrame implements ActionListener {
         } else if (e.getSource().equals(menuItemClose)) {
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         } else if (e.getSource().equals(buttonDrawPolygon)) {
-            paintBoard.getListControler().setOperation(MenuOptions.POLYGON);
+            paintBoard.getListControler().setOperation(ObjectsType.POLYGON);
         } else if (e.getSource().equals(buttonDrawPoint)) {
-            paintBoard.getListControler().setOperation(MenuOptions.POINT);
+            paintBoard.getListControler().setOperation(ObjectsType.POINT);
             paintBoard.getListControler().addObject(new Circle());
             paintBoard.getListControler().changeDrawingStatus();
         } else if (e.getSource().equals(buttonDrawLine)) {
-            paintBoard.getListControler().setOperation(MenuOptions.LINE);
+            paintBoard.getListControler().setOperation(ObjectsType.LINE);
             paintBoard.getListControler().addObject(new Line());
             paintBoard.getListControler().changeDrawingStatus();
         } else if (e.getSource().equals(buttonDrawTriangle)) {
-            paintBoard.getListControler().setOperation(MenuOptions.TRIANGLE);
+            paintBoard.getListControler().setOperation(ObjectsType.TRIANGLE);
             paintBoard.getListControler().addObject(new Triangle());
             paintBoard.getListControler().changeDrawingStatus();
         } else if (e.getSource().equals(buttonDrawQuadrangle)) {
-            paintBoard.getListControler().setOperation(MenuOptions.QUADRANGLE);
+            paintBoard.getListControler().setOperation(ObjectsType.QUADRANGLE);
             paintBoard.getListControler().addObject(new Rectangle());
             paintBoard.getListControler().changeDrawingStatus();
         } else if (e.getSource().equals(buttonDrawSquare)) {
-            paintBoard.getListControler().setOperation(MenuOptions.SQUARE);
+            paintBoard.getListControler().setOperation(ObjectsType.SQUARE);
             paintBoard.getListControler().addObject(new Square());
             paintBoard.getListControler().changeDrawingStatus();
         } else if (e.getSource().equals(buttonDrawEllipse)) {
-            paintBoard.getListControler().setOperation(MenuOptions.ELLIPSE);
+            paintBoard.getListControler().setOperation(ObjectsType.ELLIPSE);
             paintBoard.getListControler().addObject(new Ellipse());
             paintBoard.getListControler().changeDrawingStatus();
         } else if (e.getSource().equals(buttonDrawCircle)) {
-            paintBoard.getListControler().setOperation(MenuOptions.CIRCLE);
+            paintBoard.getListControler().setOperation(ObjectsType.CIRCLE);
             paintBoard.getListControler().addObject(new Circle());
             paintBoard.getListControler().changeDrawingStatus();
         }else if(e.getSource() == comboBoxDrawOptions){

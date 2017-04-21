@@ -1,6 +1,7 @@
 package painter.shapes;
 
 import java.util.Arrays;
+import painter.tools.ObjectsType;
 
 /**
  *
@@ -15,6 +16,7 @@ public class Ellipse extends GraphicObject {
 
         this.firstCorner = firstCorner;
         this.secondCorner = secondCorner;
+        super.setType(ObjectsType.ELLIPSE);
         
         if ((secondCorner.getX() < firstCorner.getX()) && (secondCorner.getY() < firstCorner.getY())) {
             Point temp = firstCorner;

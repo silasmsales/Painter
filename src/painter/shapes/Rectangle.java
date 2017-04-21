@@ -1,5 +1,7 @@
 package painter.shapes;
 
+import painter.tools.ObjectsType;
+
 public class Rectangle extends GraphicObject{
 
     private Point pointA;
@@ -13,6 +15,7 @@ public class Rectangle extends GraphicObject{
         super.addPoint(new Point(this.pointB.getX(), this.pointA.getY()));
         super.addPoint(pointB);
         super.addPoint(new Point(this.pointA.getX(), this.pointB.getY()));
+        super.setType(ObjectsType.QUADRANGLE);
     }
 
     public Rectangle(float x1, float y1, float x2, float y2) {

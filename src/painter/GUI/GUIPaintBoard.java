@@ -10,7 +10,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import painter.tools.Controler;
-import painter.tools.MenuOptions;
 import painter.tools.Selection;
 import painter.shapes.Circle;
 import painter.shapes.Ellipse;
@@ -19,6 +18,7 @@ import painter.shapes.Point;
 import painter.shapes.Rectangle;
 import painter.shapes.Square;
 import painter.shapes.VisiblePoint;
+import painter.tools.ObjectsType;
 
 public class GUIPaintBoard extends JPanel {
 
@@ -86,8 +86,16 @@ public class GUIPaintBoard extends JPanel {
                 g.setColor(Color.RED);
             }
             if (object.getLength() > 0) {
-                if (object.isLine()) {
-                    g.drawPolyline(object.getXAxisNotConvex(), object.getYAxisNotConvex(), object.getMatrix().length);
+
+                if (object.getType() == ObjectsType.POLYGON) {
+                    for (Point point : object.getNonConvexPoint()) {
+                        VisiblePoint vp = new VisiblePoint(point);
+                        g.drawPolygon(vp.getXAxisConvex(), vp.getYAxisConvex(), vp.getLength());
+                    }
+                }
+
+                if (object.getType() == ObjectsType.LINE) {
+                    g.drawPolyline(object.getXAxisNonConvex(), object.getYAxisNonConvex(), object.getMatrix().length);
                     continue;
                 }
                 if (controler.getDrawMethod() == Controler.FILL) {
@@ -101,7 +109,7 @@ public class GUIPaintBoard extends JPanel {
     }
 
     public void reset() {
-        controler.setOperation(MenuOptions.NONE);
+        controler.setOperation(ObjectsType.NONE);
         controler.setSelectedObjectIndex(Selection.NONE);
         controler.reset();
         if (controler.isDrawing()) {
@@ -433,10 +441,10 @@ public class GUIPaintBoard extends JPanel {
         @Override
         public void mouseMoved(MouseEvent e) {
             Point point = new Point(e.getX(), e.getY());
-            MenuOptions menu = controler.getOperation();
+            ObjectsType menu = controler.getOperation();
 
             if (null != menu) {
-                if (!controler.isDrawing() || menu == MenuOptions.POINT) {
+                if (!controler.isDrawing() || menu == ObjectsType.POINT) {
                     return;
                 }
                 GraphicObject object = controler.getLast();
@@ -519,10 +527,10 @@ public class GUIPaintBoard extends JPanel {
             } else {
                 switch (keyCode) {
                     case CTRL:
-                        if (!controler.isDrawing() && (controler.getOperation() == MenuOptions.POLYGON)) {
+                        if (!controler.isDrawing() && (controler.getOperation() == ObjectsType.POLYGON)) {
                             controler.changeDrawingStatus();
                             controler.addObject();
-                        } else if (controler.isDrawing() && (controler.getOperation() == MenuOptions.LINE && (controler.getLast().getMatrix().length > 1))) {
+                        } else if (controler.isDrawing() && (controler.getOperation() == ObjectsType.LINE && (controler.getLast().getMatrix().length > 1))) {
                             try {
                                 controler.getLast().remove(controler.getShadow());
                                 controler.changeDrawingStatus();
@@ -541,8 +549,8 @@ public class GUIPaintBoard extends JPanel {
         public void keyReleased(KeyEvent e) {
             switch (e.getKeyCode()) {
                 case CTRL:
-                    if (controler.isDrawing() && (controler.getOperation() == MenuOptions.POLYGON)) {
-                        controler.setOperation(MenuOptions.NONE);
+                    if (controler.isDrawing() && (controler.getOperation() == ObjectsType.POLYGON)) {
+                        controler.setOperation(ObjectsType.NONE);
                         controler.changeDrawingStatus();
                         if (controler.getLast().getLength() == 0) {
                             controler.removeLastObject();
