@@ -12,22 +12,25 @@ public class Controler {
     public static final int FILL = 1;
 
     ObjectsType selectedItem = ObjectsType.NONE;
-
     private int selectedObjectIndex = Selection.NONE;
-    private final List<GraphicObject> listOfObjects;
+    private final ArrayList<GraphicObject> listOfObjects;
+    private final ArrayList <GraphicObject>  selectObjectsList;
     private float defaultTranslationJump;
     private Color defaultColor;
     private int drawMethod;
     private boolean drawingStatus;
     private boolean translationStatus;
+    private boolean selectingStatus;
     private Point shadow;
 
     public Controler() {
         this.listOfObjects = new ArrayList<>();
+        this.selectObjectsList = new ArrayList<>();
         defaultColor = Color.GRAY;
         defaultTranslationJump = 10;
         drawingStatus = false;
         translationStatus = false;
+        selectingStatus = false;
         drawMethod = DRAW;
     }
 
@@ -105,9 +108,9 @@ public class Controler {
         return listOfObjects.get(this.getSelectedObjectIndex());
     }
 
-    public void removeSelectedObject() {
-        if (this.selectedObjectIndex != Selection.NONE) {
-            listOfObjects.remove(selectedObjectIndex);
+    public void removeObject(GraphicObject object) {
+        if (listOfObjects.contains(object)) {
+            listOfObjects.remove(object);
         }
     }
 
@@ -119,6 +122,14 @@ public class Controler {
         this.drawingStatus = !drawingStatus;
     }
 
+    public boolean isSelecting(){
+        return this.selectingStatus;
+    }
+    
+    public void changeSelectingStatus(){
+        this.selectingStatus = !this.selectingStatus;
+    }
+    
     public boolean isTranslating() {
         return translationStatus;
     }
@@ -155,4 +166,18 @@ public class Controler {
         return this.drawMethod;
     }
 
+    public void addSelectedObject(GraphicObject object) {
+        if ((selectObjectsList.contains(object))) {
+            return;
+        }
+        this.selectObjectsList.add(object);
+    }
+
+    public ArrayList<GraphicObject> getSelectObjects(){
+        return this.selectObjectsList;
+    }
+    
+    public void clearSelection(){
+        this.selectObjectsList.clear();
+    }
 }

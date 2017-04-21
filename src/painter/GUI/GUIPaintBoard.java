@@ -2,6 +2,9 @@ package painter.GUI;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 import javax.swing.JMenu;
@@ -82,7 +85,8 @@ public class GUIPaintBoard extends JPanel {
         int selectedObject = controler.getSelectedObjectIndex();
         List<GraphicObject> listObjects = controler.getObjects();
         for (GraphicObject object : listObjects) {
-            if (selectedObject != Selection.NONE && controler.getObjects().get(selectedObject).equals(object)) {
+            boolean selected = controler.getSelectObjects().contains(object);
+            if (selected) {
                 g.setColor(Color.RED);
             }
             if (object.getLength() > 0) {
@@ -111,6 +115,7 @@ public class GUIPaintBoard extends JPanel {
     public void reset() {
         controler.setOperation(ObjectsType.NONE);
         controler.setSelectedObjectIndex(Selection.NONE);
+        controler.clearSelection();
         controler.reset();
         if (controler.isDrawing()) {
             controler.removeLastObject();
@@ -216,11 +221,97 @@ public class GUIPaintBoard extends JPanel {
 
     }
 
-    private void deleteSelectedObject() {
-        if (controler.getSelectedObjectIndex() != Selection.NONE) {
-            controler.removeSelectedObject();
-            controler.setSelectedObjectIndex(Selection.NONE);
-            repaint();
+    private void selectObjects(Point point) {
+        int tolerance = 2;
+        controler.setSelectedObjectIndex(Selection.NONE);
+
+        float x_1 = point.getX() - tolerance;
+        float y_1 = point.getY() - tolerance;
+        float x_2 = point.getX() + tolerance;
+        float y_2 = point.getY() + tolerance;
+        for (float x = x_1; x < x_2; x++) {
+            for (float y = y_1; y < y_2; y++) {
+                Point selectionPoint = new Point(x, y);
+                int selected = Selection.getSelectedObject(controler.getObjects(), selectionPoint);
+                if (selected != Selection.NONE) {
+                    controler.addSelectedObject(controler.getObjects().get(selected));
+                }
+            }
+        }
+        repaint();
+    }
+
+    private void translateOverMouse(Point point) {
+        ArrayList<GraphicObject> objects = controler.getSelectObjects();
+        for (GraphicObject object : objects) {
+            float x_distance = point.getX() - object.getCentroid().getX();
+            float y_distance = point.getY() - object.getCentroid().getY();
+            object.translate(x_distance, y_distance);
+        }
+        controler.changeTranslatingStatus();
+    }
+
+    private void translateObjects(float x, float y) {
+        ArrayList<GraphicObject> objects = controler.getSelectObjects();
+        for (GraphicObject object : objects) {
+            object.translate(x, y);
+        }
+
+    }
+
+    private void scaleObjects(float parameter) {
+        if (parameter < 0) {
+            parameter = 1 / (parameter * -1);
+        }
+        ArrayList<GraphicObject> objects = controler.getSelectObjects();
+        for (GraphicObject object : objects) {
+            object.scale(parameter);
+        }
+    }
+
+    private void rotateObjects(float parameter) {
+        if (parameter < 0) {
+            parameter = 1 / (parameter * -1);
+        }
+        ArrayList<GraphicObject> objects = controler.getSelectObjects();
+        for (GraphicObject object : objects) {
+            object.rotate(parameter);
+        }
+    }
+
+    private void reflectObjects(String parameter) {
+        boolean reflect[] = new boolean[]{false, false};
+        if (parameter.contains("X")) {
+            reflect[X_AXIS] = true;
+        }
+        if (parameter.contains("Y")) {
+            reflect[Y_AXIS] = true;
+        }
+        ArrayList<GraphicObject> objects = controler.getSelectObjects();
+        for (GraphicObject object : objects) {
+            object.reflect(reflect[X_AXIS], reflect[Y_AXIS]);
+        }
+    }
+
+    private void shearObjects(float parameter) {
+        ArrayList<GraphicObject> objects = controler.getSelectObjects();
+        for (GraphicObject object : objects) {
+            if (parameter > 0) {
+                object.shear(parameter / 10, 0);
+            } else {
+                object.shear(parameter / 10, 0);
+            }
+        }
+    }
+
+    private void deleteObjects() {
+        if (controler.getSelectObjects().size() > 0) {
+            ArrayList<GraphicObject> objects = controler.getSelectObjects();
+            for (Iterator<GraphicObject> iterator = objects.iterator(); iterator.hasNext();) {
+                GraphicObject object = iterator.next();
+                controler.removeObject(object);
+                iterator.remove();
+            }
         }
     }
 
@@ -228,7 +319,8 @@ public class GUIPaintBoard extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) throws NumberFormatException {
-            GraphicObject object = controler.getSelectedObject();
+            List<GraphicObject> selectedObjects = controler.getSelectObjects();
+            GraphicObject object = selectedObjects.get(0);
             Scanner scanner = new Scanner(e.getActionCommand());
             String command = scanner.next();
             if (e.getSource() == menuItemTranslateSetting) {
@@ -242,66 +334,32 @@ public class GUIPaintBoard extends JPanel {
             } else if (e.getSource() == menuItemScaleAt) {
                 String reply = JOptionPane.showInputDialog(null, "Fator de escala", "Escalar", JOptionPane.QUESTION_MESSAGE);
                 float scaleAt = Float.parseFloat(reply);
-                if (scaleAt < 0) {
-                    scaleAt = 1 / (scaleAt * -1);
-                }
-                object.scale(scaleAt);
+                scaleObjects(scaleAt);
             } else if (e.getSource() == menuItemRotateAt) {
                 String reply = JOptionPane.showInputDialog(null, "Ângulo de rotação", "Rotacionar", JOptionPane.QUESTION_MESSAGE);
                 float rotateAt = Float.parseFloat(reply);
-                object.rotate(rotateAt);
+                rotateObjects(rotateAt);
             } else if (e.getSource() == menuItemShearAt) {
                 String reply = JOptionPane.showInputDialog(null, "Fator de cisalhamento", "Cisalhar", JOptionPane.QUESTION_MESSAGE);
                 float cisalharAt = Float.parseFloat(reply);
-                object.shear(0, cisalharAt / 10);
+                shearObjects(cisalharAt);
             } else if (e.getSource() == menuItemTranslate) {
                 controler.changeTranslatingStatus();
-                /*                JPanel panel = new JPanel();
-                JTextField x_axis = new JTextField("0", 10);
-                JTextField y_axis = new JTextField("0", 10);
-                panel.add(new JLabel("Eixo dos X"));
-                panel.add(x_axis);
-                panel.add(new JLabel("Eixo dos Y"));
-                panel.add(y_axis);
-
-                JOptionPane.showMessageDialog(null, panel);
-                try {
-                    float x = Float.parseFloat(x_axis.getText());
-                    float y = Float.parseFloat(y_axis.getText());
-                    object.translate(x, y);
-                } catch (NumberFormatException exception) {
-                    System.err.println("Número Inválido");
-                }
-                 */
             } else if (command.toUpperCase().contains(ESCALAR)) {
                 float parameter = scanner.nextInt();
-                if (parameter < 0) {
-                    parameter = 1 / (parameter * -1);
-                }
-                object.scale(parameter);
+                scaleObjects(parameter);
             } else if (command.toUpperCase().contains(ROTACIONAR)) {
                 float parameter = scanner.nextInt();
-                object.rotate(parameter);
+                rotateObjects(parameter);
             } else if (command.toUpperCase().contains(ESPELHAR)) {
                 scanner.next();
                 String parameter = scanner.nextLine();
-                boolean reflect[] = new boolean[]{false, false};
-                if (parameter.contains("X")) {
-                    reflect[X_AXIS] = true;
-                }
-                if (parameter.contains("Y")) {
-                    reflect[Y_AXIS] = true;
-                }
-                object.reflect(reflect[0], reflect[1]);
+                reflectObjects(parameter);
             } else if (command.toUpperCase().contains(CISALHAR)) {
                 float parameter = scanner.nextInt();
-                if (parameter > 0) {
-                    object.shear(parameter / 10, 0);
-                } else {
-                    object.shear(parameter / 10, 0);
-                }
+                shearObjects(parameter);
             } else if (command.toUpperCase().contains(DELETAR)) {
-                deleteSelectedObject();
+                deleteObjects();
             }
 
             repaint();
@@ -318,42 +376,22 @@ public class GUIPaintBoard extends JPanel {
                 if (controler.getLength() < 1) {
                     return;
                 }
-                if (controler.isTranslating() && controler.getSelectedObjectIndex() != Selection.NONE) {
-                    GraphicObject object = controler.getSelectedObject();
-                    float x_distance = point.getX() - object.getCentroid().getX();
-                    float y_distance = point.getY() - object.getCentroid().getY();
-                    object.translate(x_distance, y_distance);
-                    controler.changeTranslatingStatus();
-                    repaint();
+                if (controler.isTranslating()) {
+                    translateOverMouse(point);
                 }
-                controler.setSelectedObjectIndex(Selection.NONE);
-                int selected = controler.getSelectedObjectIndex();
-                float x_1 = point.getX() - 5;
-                float y_1 = point.getY() - 5;
-                float x_2 = point.getX() + 5;
-                float y_2 = point.getY() + 5;
-                for (float x = x_1; x < x_2; x++) {
-                    for (float y = y_1; y < y_2; y++) {
-                        Point selectionPoint = new Point(x, y);
-                        controler.setSelectedObjectIndex(Selection.getSelectedObject(controler.getObjects(), selectionPoint));
-                        if (controler.getSelectedObjectIndex() != Selection.NONE) {
-                            selected = controler.getSelectedObjectIndex();
-                            break;
-                        }
-                    }
-                    if (controler.getSelectedObjectIndex() != Selection.NONE) {
-                        selected = controler.getSelectedObjectIndex();
-                        break;
-                    }
+                if (controler.isSelecting()) {
+                    selectObjects(point);
                 }
-                controler.setSelectedObjectIndex(selected);
-
+                if (!controler.isSelecting() && e.getButton() != MouseEvent.BUTTON3) {
+                    controler.clearSelection();
+                }
                 repaint();
-                if ((e.getButton() == MouseEvent.BUTTON3) && (controler.getSelectedObjectIndex() != Selection.NONE)) {
+                if ((e.getButton() == MouseEvent.BUTTON3) && (controler.getSelectObjects().size() > 0)) {
                     popupMenu.show(e.getComponent(), e.getX(), e.getY());
                 }
+                
             } else {
-                controler.setSelectedObjectIndex(Selection.NONE);
+                controler.clearSelection();
                 GraphicObject object = controler.getLast();
                 switch (controler.getOperation()) {
                     case POLYGON:
@@ -431,7 +469,6 @@ public class GUIPaintBoard extends JPanel {
                             controler.changeDrawingStatus();
                         }
                         break;
-
                 }
                 repaint();
             }
@@ -504,24 +541,25 @@ public class GUIPaintBoard extends JPanel {
 
             int keyCode = e.getKeyCode();
 
-            if (controler.getSelectedObjectIndex() != Selection.NONE) {
-                GraphicObject object = controler.getSelectedObject();
+            if (controler.getSelectObjects().size() > 0) {
+                GraphicObject object = controler.getSelectObjects().get(0);
+
                 float defaultGap = controler.getDefaultTranslationJump();
                 switch (keyCode) {
                     case DEL:
-                        deleteSelectedObject();
+                        deleteObjects();
                         break;
                     case LEFT:
-                        object.translate(-defaultGap, 0);
+                        translateObjects(-defaultGap, 0);
                         break;
                     case UP:
-                        object.translate(0, -defaultGap);
+                        translateObjects(0, -defaultGap);
                         break;
                     case RIGHT:
-                        object.translate(defaultGap, 0);
+                        translateObjects(defaultGap, 0);
                         break;
                     case DOWN:
-                        object.translate(0, defaultGap);
+                        translateObjects(0, defaultGap);
                         break;
                 }
             } else {
@@ -537,7 +575,10 @@ public class GUIPaintBoard extends JPanel {
                             } catch (Exception ex) {
                                 System.err.println("Sorry bro! Something got wrong");
                             }
+                        } else if (!controler.isSelecting()) {
+                            controler.changeSelectingStatus();
                         }
+
                         break;
                 }
 
@@ -556,12 +597,16 @@ public class GUIPaintBoard extends JPanel {
                             controler.removeLastObject();
                         }
                         controler.getLast().remove(controler.getShadow());
+                    } else if (controler.isSelecting()) {
+                        controler.changeSelectingStatus();
                     }
                     break;
                 case ESC:
                     if (controler.isDrawing()) {
                         controler.changeDrawingStatus();
                         controler.removeLastObject();
+                    } else if (controler.getSelectObjects().size() > 0) {
+                        controler.clearSelection();
                     }
                     controler.setSelectedObjectIndex(Selection.NONE);
                     break;
