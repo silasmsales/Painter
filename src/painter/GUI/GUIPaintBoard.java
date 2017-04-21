@@ -4,13 +4,11 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 import java.util.Scanner;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JTextField;
 import painter.tools.Controler;
 import painter.tools.MenuOptions;
 import painter.tools.Selection;
@@ -524,9 +522,13 @@ public class GUIPaintBoard extends JPanel {
                         if (!controler.isDrawing() && (controler.getOperation() == MenuOptions.POLYGON)) {
                             controler.changeDrawingStatus();
                             controler.addObject();
-                        }else if(controler.isDrawing() && (controler.getOperation() == MenuOptions.LINE)){
-                            controler.getLast().remove(controler.getShadow());
-                            controler.changeDrawingStatus();
+                        } else if (controler.isDrawing() && (controler.getOperation() == MenuOptions.LINE && (controler.getLast().getMatrix().length > 1))) {
+                            try {
+                                controler.getLast().remove(controler.getShadow());
+                                controler.changeDrawingStatus();
+                            } catch (Exception ex) {
+                                System.err.println("Sorry bro! Something got wrong");
+                            }
                         }
                         break;
                 }

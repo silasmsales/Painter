@@ -9,7 +9,7 @@ import painter.tools.GrahamScan;
  *
  * @author silasmsales
  */
-public class GraphicObject{
+public class GraphicObject {
 
     private final static int ONE_NEGATIVE = -1;
     private final static int ZERO = 0;
@@ -29,7 +29,7 @@ public class GraphicObject{
     {ZERO, ZERO, ZERO}};
 
     protected boolean isLine = false;
-    
+
     public GraphicObject(float[] xAxis, float[] yAxis) {
         this.matrixPoints = new float[xAxis.length][COLUMN_NUMBER];
 
@@ -170,20 +170,24 @@ public class GraphicObject{
     }
 
     public void remove(Point point) {
-        if (this.matrixPoints.length > 1) {
-            for (int i = 0; i < this.matrixPoints.length; i++) {
-                if (matrixPoints[i][X_AXIS] == point.getX() && matrixPoints[i][Y_AXIS] == point.getY()) {
-                    List<float[]> points = new ArrayList(Arrays.asList(matrixPoints));
-                    points.remove(i);
-                    matrixPoints = new float[points.size()][3];
-                    for (int j = 0; j < this.matrixPoints.length; j++) {
-                        matrixPoints[j][X_AXIS] =  points.get(j)[X_AXIS];
-                        matrixPoints[j][Y_AXIS] =  points.get(j)[Y_AXIS];
-                        matrixPoints[j][NULL_AXIS] =  points.get(j)[NULL_AXIS];
+        try {
+            if (this.matrixPoints.length > 1) {
+                for (int i = 0; i < this.matrixPoints.length; i++) {
+                    if (matrixPoints[i][X_AXIS] == point.getX() && matrixPoints[i][Y_AXIS] == point.getY()) {
+                        List<float[]> points = new ArrayList(Arrays.asList(matrixPoints));
+                        points.remove(i);
+                        matrixPoints = new float[points.size()][3];
+                        for (int j = 0; j < this.matrixPoints.length; j++) {
+                            matrixPoints[j][X_AXIS] = points.get(j)[X_AXIS];
+                            matrixPoints[j][Y_AXIS] = points.get(j)[Y_AXIS];
+                            matrixPoints[j][NULL_AXIS] = points.get(j)[NULL_AXIS];
+                        }
+                        return;
                     }
-                    return;
                 }
             }
+        } catch (Exception e) {
+            System.err.println("Sorry bro! Something got wrong!");
         }
     }
 
@@ -196,12 +200,12 @@ public class GraphicObject{
 
     public Point getCentroid() {
         float x = 0, y = 0;
-        int [] xAxis;
-        int [] yAxis;
+        int[] xAxis;
+        int[] yAxis;
         xAxis = this.getXAxisConvex();
         yAxis = this.getYAxisConvex();
         int length = this.getLength();
-        
+
         for (int i = 0; i < length; i++) {
             x += xAxis[i];
             y += yAxis[i];
@@ -230,21 +234,22 @@ public class GraphicObject{
         return area / TWO;
     }
 
-    public int [] getXAxisNotConvex() {
+    public int[] getXAxisNotConvex() {
         int[] xAxis = new int[matrixPoints.length];
         for (int i = 0; i < matrixPoints.length; i++) {
-            xAxis[i] = (int)matrixPoints[i][0];
+            xAxis[i] = (int) matrixPoints[i][0];
         }
         return xAxis;
     }
-    public int [] getYAxisNotConvex() {
+
+    public int[] getYAxisNotConvex() {
         int[] yAxis = new int[matrixPoints.length];
         for (int i = 0; i < matrixPoints.length; i++) {
-            yAxis[i] = (int)matrixPoints[i][1];
+            yAxis[i] = (int) matrixPoints[i][1];
         }
         return yAxis;
     }
-    
+
     public int[] getXAxisConvex() {
         int[][] matrix = GrahamScan.getConvexHull(this.getXAxisInFloat(), this.getYAxisInFloat());
         int[] xAxis = new int[matrix.length];
@@ -284,8 +289,9 @@ public class GraphicObject{
             return 0;
         }
         int lenght = GrahamScan.getConvexHull(this.getXAxisInFloat(), this.getYAxisInFloat()).length;
-        if(lenght > 2)
-            lenght--; 
+        if (lenght > 2) {
+            lenght--;
+        }
         return lenght;
     }
 
