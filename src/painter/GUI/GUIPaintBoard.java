@@ -3,7 +3,6 @@ package painter.GUI;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
@@ -41,6 +40,7 @@ public class GUIPaintBoard extends JPanel {
     private static final String ESPELHAR = "ESPELHAR";
     private static final String CISALHAR = "CISALHAR";
     private static final String DELETAR = "DELETAR";
+    private static final String MESCLAR = "MESCLAR";
 
     private static GUIPaintBoard guiPaintBoard = null;
     private final Controler controler;
@@ -48,6 +48,7 @@ public class GUIPaintBoard extends JPanel {
     private JPopupMenu popupMenu;
     private JMenu menuScale, menuRotate, menuShear, menuReflect, menuTranslate;
     private JMenu menuScalePositive, menuScaleNegative, menuRotatePositive, menuRotateNegative, menuShearPositive, menuShearNegative;
+    private JMenuItem menuMerge;
     private JMenuItem menuDelete;
     private JMenuItem menuItemScaleAt, menuItemRotateAt, menuItemShearAt;
     private JMenuItem[] menuItemsScalePositive, menuItemsScaleNegative;
@@ -82,7 +83,6 @@ public class GUIPaintBoard extends JPanel {
     protected void paintComponent(Graphics g) {
         g.clearRect(0, 0, getWidth(), getHeight());
         g.setColor(controler.getDefaultColor());
-        int selectedObject = controler.getSelectedObjectIndex();
         List<GraphicObject> listObjects = controler.getObjects();
         for (GraphicObject object : listObjects) {
             boolean selected = controler.getSelectObjects().contains(object);
@@ -208,6 +208,9 @@ public class GUIPaintBoard extends JPanel {
         menuTranslate.add(menuItemTranslate);
         menuTranslate.add(menuItemTranslateSetting);
 
+        menuMerge = new JMenuItem("Mesclar");
+        menuMerge.addActionListener(actionEventHandler);
+
         menuDelete = new JMenuItem("Deletar");
         menuDelete.addActionListener(actionEventHandler);
 
@@ -217,6 +220,7 @@ public class GUIPaintBoard extends JPanel {
         popupMenu.add(menuReflect);
         popupMenu.add(menuTranslate);
         popupMenu.addSeparator();
+        popupMenu.add(menuMerge);
         popupMenu.add(menuDelete);
 
     }
@@ -270,9 +274,7 @@ public class GUIPaintBoard extends JPanel {
     }
 
     private void rotateObjects(float parameter) {
-        if (parameter < 0) {
-            parameter = 1 / (parameter * -1);
-        }
+        System.err.println(parameter);
         ArrayList<GraphicObject> objects = controler.getSelectObjects();
         for (GraphicObject object : objects) {
             object.rotate(parameter);
@@ -302,6 +304,19 @@ public class GUIPaintBoard extends JPanel {
                 object.shear(parameter / 10, 0);
             }
         }
+    }
+
+    private void mergeObjects() {
+        ArrayList<GraphicObject> objects = controler.getSelectObjects();
+        GraphicObject mergedObject = new GraphicObject();
+        for (Iterator<GraphicObject> iterator = objects.iterator(); iterator.hasNext();) {
+            GraphicObject object = iterator.next();
+            mergedObject.addPoints(object.getXAxisInFloat(), object.getYAxisInFloat());
+            controler.removeObject(object);
+            iterator.remove();
+        }
+        controler.clearSelection();
+        controler.addObject(mergedObject);
     }
 
     private void deleteObjects() {
@@ -358,6 +373,8 @@ public class GUIPaintBoard extends JPanel {
             } else if (command.toUpperCase().contains(CISALHAR)) {
                 float parameter = scanner.nextInt();
                 shearObjects(parameter);
+            } else if (command.toUpperCase().contains(MESCLAR)) {
+                mergeObjects();
             } else if (command.toUpperCase().contains(DELETAR)) {
                 deleteObjects();
             }
@@ -389,7 +406,7 @@ public class GUIPaintBoard extends JPanel {
                 if ((e.getButton() == MouseEvent.BUTTON3) && (controler.getSelectObjects().size() > 0)) {
                     popupMenu.show(e.getComponent(), e.getX(), e.getY());
                 }
-                
+
             } else {
                 controler.clearSelection();
                 GraphicObject object = controler.getLast();

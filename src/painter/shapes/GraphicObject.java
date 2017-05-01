@@ -170,6 +170,14 @@ public class GraphicObject {
         this.addPoint(new Point(x, y));
     }
 
+    public void addPoints(float [] x, float [] y){
+        if(x.length != y.length || x.length < 0)
+            return;
+        for (int i = 0; i < x.length; i++) {
+            addPoint(new Point(x[i], y[i]));
+        }
+    }
+    
     public void remove(Point point) {
         try {
             if (this.matrixPoints.length > 1) {
